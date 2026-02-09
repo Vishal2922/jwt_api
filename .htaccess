@@ -1,0 +1,11 @@
+# 1. Enable Rewrite Engine to handle URL routing
+RewriteEngine On
+
+# 2. Condition: If the requested URI is NOT an existing file
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# 3. Condition: If the requested URI is NOT an existing directory
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# 4. Rule: Redirect everything to the public folder's index.php
+RewriteRule ^(.*)$ public/index.php [QSA,L]
