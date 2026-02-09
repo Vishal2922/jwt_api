@@ -186,9 +186,13 @@ class PatientController
      * GET /api/patients
      * Returns the complete profile of the logged-in user and their patient list
      */
+    /**
+     * GET /api/patients
+     * MODIFIED: Now returns ALL patient records from the database regardless of user context
+     */
     public function index()
     {
-        // 1. Get Authenticated Email from JWT via Middleware [cite: 124-131]
+        // Still verify if the requester is a logged-in user
         $user_email = AuthMiddleware::$currentUserEmail;
 
         if (!$user_email) {
@@ -196,31 +200,20 @@ class PatientController
             exit();
         }
 
-        // 2. Healthcare Logic: Fetch patients linked to this specific user [cite: 133-134]
-        $stmt = $this->patient->readByUser($user_email);
+        // Fetch ALL patients instead of readByUser
+        $stmt = $this->patient->readAll();
         $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        /**
-         * 3. Response Structure: This satisfies healthcare dashboard requirements.
-         * Ithu moolama frontend-la "Welcome [Email]" matum "Total Patients: [Count]" 
-         * nu easy-aa display panna mudiyum.
-         */
         $responseData = [
-            "user_profile" => [
-                "email" => $user_email,
-                "role" => "Healthcare Provider",
-                "total_patients_linked" => count($patients),
+            "system_info" => [
+                "request_by" => $user_email,
+                "total_records_in_system" => count($patients),
                 "server_time" => date("Y-m-d H:i:s")
             ],
             "patient_records" => $patients
         ];
 
-        // 4. Return the combined data
-        if (count($patients) >= 0) {
-            Response::json(200, $responseData);
-        } else {
-            Response::json(404, "No patient records found linked to your account.");
-        }
+        Response::json(200, $responseData);
     }
 
     public function show($id)
