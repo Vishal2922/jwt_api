@@ -23,10 +23,10 @@ class Router {
 
         foreach ($this->routes as $route) {
             // 1. Convert route URI to a regex pattern
-            // Example: /api/patients/{id} -> ^/api/patients/([a-zA-Z0-9_]+)$
+
             $pattern = "@^" . preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_]+)', $route['uri']) . "$@";
 
-            // 2. Match Method matum URI pattern 
+            // 2. Match Method and URI pattern 
             if (preg_match($pattern, $urlPath, $matches) && $route['method'] === $method) {
                 
                 // Remove the first element (the full string match)
